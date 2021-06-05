@@ -72,7 +72,8 @@ class_name PressAccept_Typer_Typer
 # |-----------|
 #
 # 1.0.0    06/04/2021    First Release
-#
+# 1.0.1    06/05/2021    Added STR_INDEXABLE_METHOD as method name
+# 
 
 # ****************
 # | Enumerations |
@@ -143,7 +144,8 @@ const STR_VECTOR3ARRAY : String = 'Pool Vector3 Array'
 const STR_COLORARRAY   : String = 'Pool Color Array'
 const STR_UNKNOWN      : String = 'Unknown'
 
-const STR_CUSTOM_CLASS : String = '__class_name'
+const STR_CUSTOM_CLASS     : String = '__class_name'
+const STR_INDEXABLE_METHOD : String = '__indexable'
 
 # constant to set in script to indicate it's indexable
 #
@@ -333,8 +335,8 @@ static func is_indexable(
 static func get_indexable(
 		instance: Object):
 
-	if instance.has_method('get_indexable'):
-		return instance.get_indexable()
+	if instance.has_method(STR_INDEXABLE_METHOD):
+		return instance.call(STR_INDEXABLE_METHOD)
 
 	return null
 

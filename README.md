@@ -15,7 +15,7 @@ The "layers" of type are as follows:
 
 Inner classes in this system will return the string version of their base class if they don't inherit from another script, otherwise they'll return a script path, like other objects. You can customize the inner classes value that's returned for its type by using a custom property with an identifier equivalent to STR_CUSTOM_CLASS (__class_name)
 
-Type expects to be installed at:
+Typer expects to be installed at:
 
 - res://addons/PressAccept/Typer/
 
@@ -33,7 +33,7 @@ Typer.DICT_CASTABLE has ENUM_TYPES as indices and string representations as valu
 
 Typer.DICT_INDEXABLE has ENUM_TYPES as indices and string representations as values of data types that can be indexed using the GDScript [] operator.
 
-is_primitive(), is_castable(), and is_indexable() test for membership in these dictionaries. is_indexable() will also return true if the value of STR_INDEXABLE is defined as a constant in a given class. NOTE: only define this constant in a class if the static indexable() function returns the indexable value given an instance.
+is_primitive(), is_castable(), and is_indexable() test for membership in these dictionaries. is_indexable() will also return true if the value of STR_INDEXABLE is defined as a constant in a given class. NOTE: only define this constant in a class if the static get_indexable() function returns the indexable value given an instance.
 
 You can use type2str, str2type, normalize_type_to_str, and normalize_type_to_int to convert between ENUM_TYPES and human friendly String representations, but type_to_str should be your go to for normalizing as it also will accept Script objects and normalize them to their resource paths.
 
@@ -78,7 +78,8 @@ Creates the following class names:
 
 ### Changelog
 
-1.0.0 06/04/2021 First Release
+- 1.0.0 06/04/2021 First Release
+- 1.0.1 06/05/2021 Added STR_INDEXABLE_METHOD as method name
 
 ### Notes On Style
 
