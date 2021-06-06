@@ -49,6 +49,18 @@ var TestUtilities : Script = PressAccept_Typer_Test_Utilities
 # shorthand for our library class
 var Typer         : Script = PressAccept_Typer_Typer
 
+var Nonindexable : Script = \
+	load('res://addons/PressAccept/Typer/test/unit/Nonindexable.gd')
+var Indexable    : Script = \
+	load('res://addons/PressAccept/Typer/test/unit/Indexable.gd')
+var Inherited: Script = \
+	load('res://addons/PressAccept/Typer/test/unit/Inherited.gd')
+
+var TestNode   : Script = \
+	load('res://addons/PressAccept/Typer/test/unit/TestNode.gd')
+var TestNode2D : Script = \
+	load('res://addons/PressAccept/Typer/test/unit/TestNode2D.gd')
+
 # |---------------|
 # | Configuration |
 # |---------------|
@@ -298,9 +310,6 @@ func test_is_type() -> void:
 	var random: RandomNumberGenerator = RandomNumberGenerator.new()
 	random.seed = INT_RANDOM_SEED
 
-	var Inherited: Script = \
-		load('res://addons/PressAccept/Typer/test/unit/Inherited.gd')
-
 	var tests: Dictionary = {
 		[ null, Typer.ARR_TYPES[Typer.ENUM_TYPES.NULL] ]:
 			{ TestUtilities.ASSERTION: TestUtilities.TRUE },
@@ -516,9 +525,6 @@ func test_get_type() -> void:
 	var random: RandomNumberGenerator = RandomNumberGenerator.new()
 	random.seed = INT_RANDOM_SEED
 
-	var Inherited: Script = \
-		load('res://addons/PressAccept/Typer/test/unit/Inherited.gd')
-
 	var tests: Dictionary = {
 		[ null ]:
 			{
@@ -699,18 +705,6 @@ func test_get_type() -> void:
 
 func test_types_compatible() -> void:
 
-	var Nonindexable : Script = \
-		load('res://addons/PressAccept/Typer/test/unit/Nonindexable.gd')
-	var Indexable    : Script = \
-		load('res://addons/PressAccept/Typer/test/unit/Indexable.gd')
-	var Inherited    : Script = \
-		load('res://addons/PressAccept/Typer/test/unit/Inherited.gd')
-
-	var TestNode   : Script = \
-		load('res://addons/PressAccept/Typer/test/unit/TestNode.gd')
-	var TestNode2D : Script = \
-		load('res://addons/PressAccept/Typer/test/unit/TestNode2D.gd')
-
 	var tests: Dictionary = {
 		[ Typer.ENUM_TYPES.NULL, Typer.ENUM_TYPES.NULL ]:
 			{ TestUtilities.ASSERTION: TestUtilities.TRUE },
@@ -814,18 +808,6 @@ func test_types_compatible() -> void:
 
 
 func test_value_types_compatible() -> void:
-
-	var Nonindexable : Script = \
-		load('res://addons/PressAccept/Typer/test/unit/Nonindexable.gd')
-	var Indexable    : Script = \
-		load('res://addons/PressAccept/Typer/test/unit/Indexable.gd')
-	var Inherited    : Script = \
-		load('res://addons/PressAccept/Typer/test/unit/Inherited.gd')
-
-	var TestNode   : Script = \
-		load('res://addons/PressAccept/Typer/test/unit/TestNode.gd')
-	var TestNode2D : Script = \
-		load('res://addons/PressAccept/Typer/test/unit/TestNode2D.gd')
 
 	var tests: Dictionary = {
 		[ null, null ]:
