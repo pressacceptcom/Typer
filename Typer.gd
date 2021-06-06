@@ -144,12 +144,15 @@ const STR_VECTOR3ARRAY : String = 'Pool Vector3 Array'
 const STR_COLORARRAY   : String = 'Pool Color Array'
 const STR_UNKNOWN      : String = 'Unknown'
 
+# returns custom (inner) class name
 const STR_CUSTOM_CLASS     : String = '__class_name'
+
+# returns value that is indexable
 const STR_INDEXABLE_METHOD : String = '__indexable'
 
 # constant to set in script to indicate it's indexable
 #
-# this means the object is expected to be indexable using .value[]
+# this means the value returned from get_indexable can be accessed with []
 const STR_INDEXABLE    : String = 'INDEXABLE'
 
 # String's equivalent to ENUM_TYPES labels
