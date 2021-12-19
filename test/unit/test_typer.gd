@@ -37,7 +37,9 @@ extends 'res://addons/gut/test.gd'
 # | Changelog |
 # |-----------|
 #
-# 1.0    06/04/2021    First Release
+# 1.0.0  06/04/2021    First Release
+# 2.0.0  12/19/2021    Revised test files for Typer 2.0.0 (STR_INDEXABLE)
+#                      Added tests for inner classes
 #
 
 # |---------|
@@ -55,6 +57,8 @@ var Indexable    : Script = \
 	load('res://addons/PressAccept/Typer/test/unit/Indexable.gd')
 var Inherited: Script = \
 	load('res://addons/PressAccept/Typer/test/unit/Inherited.gd')
+var InnerClass: Script = \
+	load('res://addons/PressAccept/Typer/test/unit/InnerClass.gd')
 
 var TestNode   : Script = \
 	load('res://addons/PressAccept/Typer/test/unit/TestNode.gd')
@@ -697,6 +701,22 @@ func test_get_type() -> void:
 				TestUtilities.ASSERTION   : TestUtilities.EQUALS,
 				TestUtilities.EXPECTATION : \
 					'res://addons/PressAccept/Typer/test/unit/Inherited.gd'
+			},
+		[ InnerClass.InnerClass.new() ]:
+			{
+				TestUtilities.ASSERTION   : TestUtilities.EQUALS,
+				TestUtilities.EXPECTATION : 'Reference'
+			},
+		[ InnerClass.InheritedInnerClass.new() ]:
+			{
+				TestUtilities.ASSERTION   : TestUtilities.EQUALS,
+				TestUtilities.EXPECTATION : \
+					'res://addons/PressAccept/Typer/test/unit/Inherited.gd'
+			},
+		[ InnerClass.CustomInnerClass.new() ]:
+			{
+				TestUtilities.ASSERTION   : TestUtilities.EQUALS,
+				TestUtilities.EXPECTATION : 'CustomInnerClass'
 			}
 	}
 

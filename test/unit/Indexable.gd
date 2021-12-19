@@ -1,4 +1,7 @@
 tool
+extends Reference
 
-const INDEXABLE: bool = true
+func __indexable():
+	
+	return []
 

@@ -42,8 +42,8 @@ class_name PressAccept_Typer_Typer
 # Inner classes in this system will return the string version of their base
 # class if they don't inherit from another script, otherwise they'll return a
 # script path, like other objects. You can customize the inner classes value
-# that's returned for its type by using a custom property with an identifier
-# equivalent to STR_CUSTOM_CLASS (__class_name)
+# that's returned for its type by using a custom method with an identifier
+# equivalent to STR_CUSTOM_CLASS_METHOD (__class_name)
 #
 # |------------------|
 # | Meta Information |
@@ -73,7 +73,16 @@ class_name PressAccept_Typer_Typer
 #
 # 1.0.0    06/04/2021    First Release
 # 1.0.1    06/05/2021    Added STR_INDEXABLE_METHOD as method name
-# 
+# 2.0.0    12/18/2021    Removed STR_INDEXABLE functionality
+#                            To verify indexable,
+#                                just use method STR_INDEXABLE_METHOD
+#                        Added get_type_inheritance
+#                                (type compatibility uses this now)
+#                              get_type_methods
+#                              get_type_method_names
+#                        Changed STR_CUSTOM_CLASS to STR_CUSTOM_CLASS_METHOD
+#                              get_type now expects a method return value
+#
 
 # ****************
 # | Enumerations |
@@ -144,16 +153,18 @@ const STR_VECTOR3ARRAY : String = 'Pool Vector3 Array'
 const STR_COLORARRAY   : String = 'Pool Color Array'
 const STR_UNKNOWN      : String = 'Unknown'
 
-# returns custom (inner) class name
-const STR_CUSTOM_CLASS     : String = '__class_name'
+# Method defined on an inner class that returns custom (inner) class name
+const STR_CUSTOM_CLASS_METHOD : String = '__class_name'
 
-# returns value that is indexable
-const STR_INDEXABLE_METHOD : String = '__indexable'
-
-# constant to set in script to indicate it's indexable
+# method defined on a script that returns a value that is indexable
 #
-# this means the value returned from get_indexable can be accessed with []
-const STR_INDEXABLE    : String = 'INDEXABLE'
+# indexable means the returned value can be accessed with []
+#
+# In 1.0 we used STR_INDEXABLE (: String = 'INDEXABLE') as a constant on a
+# script to determine if that script supported being indexable. Since any
+# script that provides a STR_INDEXABLE_METHOD method is thus indexable, the
+# constant is not needed, we can simply test for the presence of the method
+const STR_INDEXABLE_METHOD    : String = '__indexable'
 
 # String's equivalent to ENUM_TYPES labels
 const ARR_TYPES_ENUM: Array = [
@@ -267,11 +278,11 @@ static func type2str(
 static func str2type(
 		type_str: String) -> int:
 
-	type_str = type_str.to_lower()
+	type_str = type_str.to_upper()
 	for i in range(ARR_TYPES.size()):
-		if type_str == ARR_TYPES[i].to_lower():
+		if type_str == ARR_TYPES[i].to_upper():
 			return i
-		if type_str == ARR_TYPES_ENUM[i].to_lower():
+		if type_str == ARR_TYPES_ENUM[i]:
 			return i
 
 	return -1
@@ -325,9 +336,8 @@ static func is_indexable(
 		type) -> bool: # int | String
 
 	if typeof(type) == ENUM_TYPES.STRING and type.begins_with('res://'):
-		type = load(type)
-		var constants: Dictionary = type.get_script_constant_map()
-		if STR_INDEXABLE in constants:
+		var methods: Array = get_type_method_names(type)
+		if STR_INDEXABLE_METHOD in methods:
 			return true
 
 	type = normalize_type_to_int(type)
@@ -358,8 +368,7 @@ static func type_to_str(
 		ENUM_TYPES.STRING:
 			if not type.begins_with('res://'):
 				var type_str: String = normalize_type_to_str(type)
-
-				# normalize to primitie or built-in class name
+				# normalize to primitive or built-in class name
 				return type if type_str == STR_UNKNOWN else type_str
 
 	if type is Script:
@@ -370,8 +379,9 @@ static func type_to_str(
 
 # Checks if a variant value is of a type (String or Script)
 #
-# NOTE: string should be a built-in class name or resource path. Names of
-# classes
+# NOTE: string should be a built-in class name or resource path. Strings of
+#       names of classes (class_name) doesn't work, provide the Script by
+#       referencing the class_name instead
 static func is_type(
 		variable_value, # any
 		type) -> bool:  # int | String (built-in class name or path) | Script
@@ -422,7 +432,6 @@ static func get_type(
 			type = variable_value
 		else:
 			type = variable_value.get_class()
-
 			# do we have a script?
 			var script = variable_value.get_script()
 			if script:
@@ -435,11 +444,92 @@ static func get_type(
 					var base_script = script.get_base_script()
 					if base_script is Script and base_script.resource_path:
 						type = base_script
-					elif STR_CUSTOM_CLASS in variable_value:
+					elif variable_value.has_method(STR_CUSTOM_CLASS_METHOD):
 						# fall back to custom property
-						return variable_value.__class_name;
+						return variable_value.call(STR_CUSTOM_CLASS_METHOD);
 
 	return type_to_str(type)
+
+
+# Builds an inheritance path as an array (base->end) for a given type
+static func get_type_inheritance(
+		type, # String | Script
+		include_instance_base: bool = false) -> Array:
+
+	# we're dealing with potential strings or scripts
+	var type_str = type_to_str(type) \
+		if not typeof(type) == ENUM_TYPES.STRING \
+		else type
+
+	var type_arr: Array = []
+	var base: String = ''
+
+	if type_str.begins_with('res://'):
+		# we're dealing with a script
+		# build inheritance stack base->end
+		type = type if type is Script else load(type)
+		type_arr.push_front(type.resource_path)
+		var base_script: Script = type.get_base_script()
+		while base_script:
+			type_arr.push_front(base_script.resource_path)
+			base_script = base_script.get_base_script()
+		base = type.get_instance_base_type()
+
+	if not include_instance_base:
+		return type_arr
+
+	base = base if base else type_str
+	while base:
+		type_arr.push_front(base)
+		base = ClassDB.get_parent_class(base)
+
+	return type_arr
+
+
+# Collects all methods (dict objects) as an array based on inheritance
+static func get_type_methods(
+		type, # String | Script
+		include_instance_base: bool = false) -> Array:
+
+	if type is String:
+		if type.begins_with('res://'):
+			type = load(type)
+
+	var methods      : Array = []
+	var method_names : Array = []
+
+	if not type is String:
+		var script_methods: Array = type.get_script_method_list()
+		for method in script_methods:
+			if not method['name'] in method_names:
+				methods.push_back(method)
+				method_names.push_back(method['name'])
+		if not include_instance_base:
+			return methods
+		type = type.get_instance_base_type()
+
+	# we're querying a built-in class
+	var class_methods: Array = ClassDB.class_get_method_list(type)
+	for method in class_methods:
+		if not method['name'] in method_names:
+			methods.push_back(method)
+			method_names.push_back(method['name'])
+
+	return methods
+
+
+# Collects all method names as an array based on inheritance
+static func get_type_method_names(
+		type, # String | Script
+		include_instance_base: bool = false) -> Array:
+
+	var methods      : Array = get_type_methods(type, include_instance_base)
+	var method_names : Array = []
+
+	for method in methods:
+		method_names.push_back(method['name'])
+
+	return method_names
 
 
 # Compares two types to see if they are equivalent or have a common ancestor
@@ -503,21 +593,10 @@ static func types_compatible(
 			return true
 
 		# build inheritance stack base->end
-		var type1_arr : Array  = [ type1.resource_path ]
-		var base      : Script = type1.get_base_script()
-		while base:
-			type1_arr.push_front(base.resource_path)
-			base = base.get_base_script()
-		if include_instance_base:
-			type1_arr.push_front(type1.get_instance_base_type())
-
-		var type2_arr: Array = [ type2.resource_path ]
-		base                 = type2.get_base_script()
-		while base:
-			type2_arr.push_front(base.resource_path)
-			base = base.get_base_script()
-		if include_instance_base:
-			type2_arr.push_front(type2.get_instance_base_type())
+		var type1_arr : Array = \
+			get_type_inheritance(type1, include_instance_base)
+		var type2_arr : Array = \
+			get_type_inheritance(type2, include_instance_base)
 
 		# test inheritance stack
 		for i in type1_arr:
