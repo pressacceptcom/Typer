@@ -15,6 +15,14 @@ The "layers" of type are as follows:
 
 Inner classes in this system will return the string version of their base class if they don't inherit from another script, otherwise they'll return a script path, like other objects. You can customize the inner classes value that's returned for its type by using a custom property with an identifier equivalent to STR_CUSTOM_CLASS (__class_name)
 
+### New in version 2
+
+I've now included an ObjectInfo module/class which will gather constant, method, property, and signal information for any given object or script using either static functions or a stateful object-oriented wrapper utilizing those static functions.
+
+I've also added get_type_inheritance and get_type_methods (and get_type_method_names) to Typer. These return the inheritance path of each object (with or without built-in classes), and a given type's methods respectively.
+
+### Installation
+
 Typer expects to be installed at:
 
 - res://addons/PressAccept/Typer/
