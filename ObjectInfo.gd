@@ -63,6 +63,7 @@ class_name PressAccept_Typer_ObjectInfo
 # |-----------|
 #
 # 1.0.0    12/19/2021    First Release
+# 1.1.0    12/29/2021    Made normalize_script public
 #
 
 # *************
@@ -116,13 +117,14 @@ const STR_OBJECT_PROPERTY_INFO_METHOD : String = '__object_property_info'
 #         signal_info: Dictionary, mask: int) -> Dictionary
 const STR_OBJECT_SIGNAL_INFO_METHOD   : String = '__object_signal_info'
 
-# ****************************
-# | Private Static Functions |
-# ****************************
+
+# ***************************
+# | Public Static Functions |
+# ***************************
 
 
 # normalize a given input (path name) to a Script resource object
-static func _normalize_script(
+static func normalize_script(
 		script) -> Script:
 
 	if script is String:
@@ -134,10 +136,6 @@ static func _normalize_script(
 
 	return script
 
-
-# ***************************
-# | Public Static Functions |
-# ***************************
 
 # validates an array of method arguments against the method's info dictionary
 #
@@ -202,7 +200,7 @@ static func script_has_method(
 		method_name           : String,
 		include_instance_base : bool = false) -> bool:
 
-	script = _normalize_script(script)
+	script = normalize_script(script)
 	if not script is Script:
 		return false
 
@@ -231,7 +229,7 @@ static func script_has_method(
 static func script_constant_info(
 		script) -> Dictionary:
 
-	script = _normalize_script(script)
+	script = normalize_script(script)
 	if not script is Script:
 		return {}
 
@@ -264,7 +262,7 @@ static func script_method_info(
 		mask                  : int  = INT_STANDARD_METHODS_MASK,
 		include_instance_base : bool = false) -> Dictionary:
 
-	script = _normalize_script(script)
+	script = normalize_script(script)
 	if not script is Script:
 		return {}
 
@@ -294,7 +292,7 @@ static func script_property_info(
 		script,
 		mask: int = INT_STANDARD_PROPERTIES_MASK) -> Dictionary:
 
-	script = _normalize_script(script)
+	script = normalize_script(script)
 	if not script is Script:
 		return {}
 
@@ -332,7 +330,7 @@ static func script_signal_info(
 		script,
 		mask: int = 1) -> Dictionary:
 
-	script = _normalize_script(script)
+	script = normalize_script(script)
 	if not script is Script:
 		return {}
 

@@ -82,6 +82,12 @@ class_name PressAccept_Typer_Typer
 #                              get_type_method_names
 #                        Changed STR_CUSTOM_CLASS to STR_CUSTOM_CLASS_METHOD
 #                              get_type now expects a method return value
+# 2.1.0    12/29/2021    Added STR_SET_INDEXABLE_METHOD
+#                              STR_SET_INDEXABLE_BY_METHOD
+#                              STR_INDICES_METHOD
+#                              set_indexable_by
+#                              set_idnexable
+#                              get_indices
 #
 
 # ****************
@@ -165,6 +171,15 @@ const STR_CUSTOM_CLASS_METHOD : String = '__class_name'
 # script that provides a STR_INDEXABLE_METHOD method is thus indexable, the
 # constant is not needed, we can simply test for the presence of the method
 const STR_INDEXABLE_METHOD    : String = '__indexable'
+
+# sets the indexable value
+const STR_SET_INDEXABLE_METHOD    : String = '__set_indexable'
+
+# sets an index in the indexable value
+const STR_SET_INDEXABLE_BY_METHOD : String = '__set_indexable_by'
+
+# returns the values that can be used to index
+const STR_INDICES_METHOD          : String = '__indices'
 
 # String's equivalent to ENUM_TYPES labels
 const ARR_TYPES_ENUM: Array = [
@@ -333,9 +348,10 @@ static func is_castable(
 
 # returns true if the type is indexable via [] (Arrays, Dicts, Objects...)
 static func is_indexable(
-		type) -> bool: # int | String
+		type) -> bool: # int | String | Script
 
-	if typeof(type) == ENUM_TYPES.STRING and type.begins_with('res://'):
+	if typeof(type) == ENUM_TYPES.STRING and type.begins_with('res://') \
+			or type is Script:
 		var methods: Array = get_type_method_names(type)
 		if STR_INDEXABLE_METHOD in methods:
 			return true
@@ -352,6 +368,39 @@ static func get_indexable(
 		return instance.call(STR_INDEXABLE_METHOD)
 
 	return null
+
+
+# sets the indexable value from a given instance
+static func set_indexable_by(
+		instance: Object,
+		index,
+		value) -> bool:
+
+	if instance.has_method(STR_SET_INDEXABLE_BY_METHOD):
+		return instance.call(STR_SET_INDEXABLE_BY_METHOD, index, value)
+
+	return false
+
+
+# sets the indexable value from a given instance
+static func set_indexable(
+		instance: Object,
+		indexable) -> bool:
+
+	if instance.has_method(STR_SET_INDEXABLE_METHOD):
+		return instance.call(STR_SET_INDEXABLE_METHOD, indexable)
+
+	return false
+
+
+# return the indexable 'keys' from a given instance
+static func get_indices(
+		instance: Object) -> Array:
+
+	if instance.has_method(STR_INDICES_METHOD):
+		return instance.call(STR_INDICES_METHOD)
+
+	return []
 
 
 # Convert a type (int, Script, or string) to an identifiable string.
