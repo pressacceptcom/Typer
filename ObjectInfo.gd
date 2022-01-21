@@ -64,6 +64,9 @@ class_name PressAccept_Typer_ObjectInfo
 #
 # 1.0.0    12/19/2021    First Release
 # 1.1.0    12/29/2021    Made normalize_script public
+# 2.0.0    01/06/2022    Integrated __*_*_info methods better
+#                           They now expect arrays of dicts and
+#                           return arrays of dicts
 #
 
 # *************
@@ -170,7 +173,7 @@ static func validate_signature(
 		method_args: Array,
 		method_info: Dictionary) -> bool:
 
-		# test number of arguments
+	# test number of arguments
 	if method_args.size() < method_info.args.size() or \
 			method_args.size() > (
 				method_info.args.size() + method_info.default_args.size()
@@ -204,21 +207,15 @@ static func script_has_method(
 	if not script is Script:
 		return false
 
-	var methods = \
-		PressAccept_Typer_Typer.get_type_method_names(
-			script,
-			include_instance_base
-		)
+	var methods = PressAccept_Typer_Typer.get_type_method_names(
+		script,
+		include_instance_base
+	)
 
 	if STR_SCRIPT_METHOD_INFO_METHOD in methods:
-		var custom_methods: Dictionary = script.call(
-			STR_SCRIPT_METHOD_INFO_METHOD,
-			{},
-			INT_ALL_METHODS_MASK
-		)
-
-		if method_name in custom_methods:
-			return true
+		var _methods = script.call(STR_SCRIPT_METHOD_INFO_METHOD, [])
+		for _method in _methods:
+			methods.push_back(_method['name'])
 
 	return method_name in methods
 
@@ -273,12 +270,12 @@ static func script_method_info(
 		)
 	var ret     : Dictionary = {}
 
-	for method in methods:
-		if method['flags'] & mask:
-			ret[method['name']] = method
-
 	if script_has_method(script, STR_SCRIPT_METHOD_INFO_METHOD):
-		ret = script.call(STR_SCRIPT_METHOD_INFO_METHOD, ret, mask)
+		methods = script.call(STR_SCRIPT_METHOD_INFO_METHOD, methods)
+
+	for method in methods:
+		if method.has('flags') and method['flags'] & mask:
+			ret[method['name']] = method
 
 	return ret
 
@@ -299,12 +296,12 @@ static func script_property_info(
 	var properties : Array      = script.get_script_property_list()
 	var ret        : Dictionary = {}
 
-	for property in properties:
-		if property['usage'] & mask:
-			ret[property['name']] = property
-
 	if script_has_method(script, STR_SCRIPT_PROPERTY_INFO_METHOD):
-		ret = script.call(STR_SCRIPT_PROPERTY_INFO_METHOD, ret, mask)
+		properties = script.call(STR_SCRIPT_PROPERTY_INFO_METHOD, properties)
+
+	for property in properties:
+		if property.has('usage') and property['usage'] & mask:
+			ret[property['name']] = property
 
 	return ret
 
@@ -337,12 +334,12 @@ static func script_signal_info(
 	var signals : Array      = script.get_script_signal_list()
 	var ret     : Dictionary = {}
 
-	for _signal in signals:
-		if _signal['flags'] & mask:
-			ret[_signal['name']] = _signal
-
 	if script_has_method(script, STR_SCRIPT_SIGNAL_INFO_METHOD):
-		ret = script.call(STR_SCRIPT_SIGNAL_INFO_METHOD, ret, mask)
+		signals = script.call(STR_SCRIPT_SIGNAL_INFO_METHOD, signals)
+
+	for _signal in signals:
+		if _signal.has('flags') and _signal['flags'] & mask:
+			ret[_signal['name']] = _signal
 
 	return ret
 
@@ -373,13 +370,13 @@ static func object_method_info(
 	var methods : Array      = obj.get_method_list()
 	var ret     : Dictionary = {}
 
+	if obj.has_method(STR_OBJECT_METHOD_INFO_METHOD):
+		methods = obj.call(STR_OBJECT_METHOD_INFO_METHOD, methods)
+
 	for method in methods:
-		if method['flags'] & mask:
+		if method.has('flags') and method['flags'] & mask:
 			ret[method['name']] = method
 
-	if obj.has_method(STR_OBJECT_METHOD_INFO_METHOD):
-		ret = obj.call(STR_OBJECT_METHOD_INFO_METHOD, ret, mask)
-	
 	return ret
 
 
@@ -396,14 +393,14 @@ static func object_property_info(
 
 	var properties : Array      = obj.get_property_list()
 	var ret        : Dictionary = {}
-	
-	for property in properties:
-		if property['usage'] & mask:
-			ret[property['name']] = property
 
 	if obj.has_method(STR_OBJECT_PROPERTY_INFO_METHOD):
-		ret = obj.call(STR_OBJECT_PROPERTY_INFO_METHOD, ret, mask)
-	
+		properties = obj.call(STR_OBJECT_PROPERTY_INFO_METHOD, properties)
+
+	for property in properties:
+		if property.has('usage') and property['usage'] & mask:
+			ret[property['name']] = property
+
 	return ret
 
 
@@ -430,17 +427,17 @@ static func object_signal_info(
 
 	if not obj is Object:
 		return {}
-	
+
 	var signals : Array      = obj.get_signal_list()
 	var ret     : Dictionary = {}
-	
-	for _signal in signals:
-		if _signal['flags'] & mask:
-			ret[_signal['name']] = _signal
-	
+
 	if obj.has_method(STR_OBJECT_SIGNAL_INFO_METHOD):
-		ret = obj.call(STR_OBJECT_SIGNAL_INFO_METHOD, ret, mask)
-	
+		signals = obj.call(STR_OBJECT_SIGNAL_INFO_METHOD, signals)
+
+	for _signal in signals:
+		if _signal.has('flags') and _signal['flags'] & mask:
+			ret[_signal['name']] = _signal
+
 	return ret
 
 # ***********

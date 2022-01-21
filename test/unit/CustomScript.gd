@@ -8,22 +8,42 @@ const STR_CONSTANT: String = 'string'
 
 var a_property: String = ''
 
-static func __script_constant_info(ret: Dictionary) -> Dictionary:
+static func __script_constant_info(
+		ret: Dictionary) -> Dictionary:
+
 	ret['CUSTOM_CONSTANT'] = 'custom'
 	return ret
 
 
-static func __script_method_info(ret: Dictionary, mask: int) -> Dictionary:
-	ret['custom_method'] = {}
+static func __script_method_info(
+		ret: Array) -> Array:
+
+	ret.push_back({
+		'name'  : 'custom_method',
+		'flags' : PressAccept_Typer_ObjectInfo.INT_STANDARD_METHODS_MASK
+	})
+
 	return ret
 
 
-static func __script_property_info(ret: Dictionary, mask: int) -> Dictionary:
-	ret['custom_property'] = {}
+static func __script_property_info(
+		ret: Array) -> Array:
+
+	ret.push_back({
+		'name'  : 'custom_property',
+		'usage' : PressAccept_Typer_ObjectInfo.INT_STANDARD_PROPERTIES_MASK
+	})
+
 	return ret
 
 
-static func __script_signal_info(ret: Dictionary, mask: int) -> Dictionary:
-	ret['custom_signal'] = {}
+static func __script_signal_info(
+		ret: Array) -> Array:
+
+	ret.push_back({
+		'name'  : 'custom_signal',
+		'flags' : 1
+	})
+
 	return ret
 

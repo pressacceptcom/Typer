@@ -70,11 +70,11 @@ func test_validate_signature() -> void:
 			[ObjectInfo.STR_SCRIPT_METHOD_INFO_METHOD]
 
 	var tests: Dictionary = {
-		[ [ {}, 1 ], method_info ]:
+		[ [ [] ], method_info ]:
 			{
 				TestUtilities.ASSERTION: TestUtilities.TRUE
 			},
-		[ [ {}, 1, null ], method_info ]:
+		[ [ [], null ], method_info ]:
 			{
 				TestUtilities.ASSERTION: TestUtilities.FALSE
 			},
@@ -155,7 +155,10 @@ func test_script_method_info() -> void:
 			if method['flags'] & mask:
 				expectation[method['name']] = method
 
-		expectation['custom_method'] = {}
+		expectation['custom_method'] = {
+			'name'  : 'custom_method',
+			'flags' : PressAccept_Typer_ObjectInfo.INT_STANDARD_METHODS_MASK
+		}
 
 		assert_eq_deep(
 			ObjectInfo.script_method_info(
@@ -181,7 +184,10 @@ func test_script_method_info() -> void:
 			if method['flags'] & mask:
 				expectation[method['name']] = method
 
-		expectation['custom_method'] = {}
+		expectation['custom_method'] = {
+			'name'  : 'custom_method',
+			'flags' : PressAccept_Typer_ObjectInfo.INT_STANDARD_METHODS_MASK
+		}
 
 		assert_eq_deep(
 			ObjectInfo.script_method_info(CustomScript, mask, true),
@@ -202,7 +208,10 @@ func test_script_property_info() -> void:
 			if property['usage'] & mask:
 				expectation[property['name']] = property
 
-		expectation['custom_property'] = {}
+		expectation['custom_property'] = {
+			'name'  : 'custom_property',
+			'usage' : PressAccept_Typer_ObjectInfo.INT_STANDARD_PROPERTIES_MASK
+		}
 
 		assert_eq_deep(
 			ObjectInfo.script_property_info(
@@ -267,7 +276,10 @@ func test_script_signal_info() -> void:
 	for _signal in signals:
 		expectation[_signal['name']] = _signal
 
-	expectation['custom_signal'] = {}
+	expectation['custom_signal'] = {
+		'name'  : 'custom_signal',
+		'flags' : 1
+	}
 
 	assert_eq_deep(
 		ObjectInfo.script_signal_info(
@@ -339,7 +351,10 @@ func test_object_method_info() -> void:
 			if method['flags'] & mask:
 				expectation[method['name']] = method
 
-		expectation['custom_method'] = {}
+		expectation['custom_method'] = {
+			'name'  : 'custom_method',
+			'flags' : PressAccept_Typer_ObjectInfo.INT_STANDARD_METHODS_MASK
+		}
 
 		assert_eq_deep(
 			ObjectInfo.object_method_info(obj, mask),
@@ -362,7 +377,10 @@ func test_object_property_info() -> void:
 			if property['usage'] & mask:
 				expectation[property['name']] = property
 
-		expectation['custom_property'] = {}
+		expectation['custom_property'] = {
+			'name'  : 'custom_property',
+			'usage' : PressAccept_Typer_ObjectInfo.INT_STANDARD_PROPERTIES_MASK
+		}
 
 		assert_eq_deep(
 			ObjectInfo.object_property_info(obj, mask),
@@ -402,7 +420,10 @@ func test_object_signal_info() -> void:
 	for _signal in signals:
 		expectation[_signal['name']] = _signal
 
-	expectation['custom_signal'] = {}
+	expectation['custom_signal'] = {
+		'name'  : 'custom_signal',
+		'flags' : 1
+	}
 
 	assert_eq_deep(
 		ObjectInfo.object_signal_info(obj),
