@@ -86,7 +86,7 @@ class_name PressAccept_Typer_Typer
 #                              STR_SET_INDEXABLE_BY_METHOD
 #                              STR_INDICES_METHOD
 #                              set_indexable_by
-#                              set_idnexable
+#                              set_indexable
 #                              get_indices
 #
 
@@ -293,6 +293,9 @@ static func type2str(
 static func str2type(
 		type_str: String) -> int:
 
+	if type_str.begins_with('res://'):
+		return TYPE_OBJECT
+
 	type_str = type_str.to_upper()
 	for i in range(ARR_TYPES.size()):
 		if type_str == ARR_TYPES[i].to_upper():
@@ -364,7 +367,7 @@ static func is_indexable(
 static func get_indexable(
 		instance: Object):
 
-	if instance.has_method(STR_INDEXABLE_METHOD):
+	if instance is Object and instance.has_method(STR_INDEXABLE_METHOD):
 		return instance.call(STR_INDEXABLE_METHOD)
 
 	return null
@@ -376,7 +379,7 @@ static func set_indexable_by(
 		index,
 		value) -> bool:
 
-	if instance.has_method(STR_SET_INDEXABLE_BY_METHOD):
+	if instance is Object and instance.has_method(STR_SET_INDEXABLE_BY_METHOD):
 		return instance.call(STR_SET_INDEXABLE_BY_METHOD, index, value)
 
 	return false
@@ -387,7 +390,7 @@ static func set_indexable(
 		instance: Object,
 		indexable) -> bool:
 
-	if instance.has_method(STR_SET_INDEXABLE_METHOD):
+	if instance is Object and instance.has_method(STR_SET_INDEXABLE_METHOD):
 		return instance.call(STR_SET_INDEXABLE_METHOD, indexable)
 
 	return false
@@ -397,7 +400,7 @@ static func set_indexable(
 static func get_indices(
 		instance: Object) -> Array:
 
-	if instance.has_method(STR_INDICES_METHOD):
+	if instance is Object and instance.has_method(STR_INDICES_METHOD):
 		return instance.call(STR_INDICES_METHOD)
 
 	return []
@@ -421,7 +424,12 @@ static func type_to_str(
 				return type if type_str == STR_UNKNOWN else type_str
 
 	if type is Script:
-		return type.resource_path
+		if type.resource_path:
+			return type.resource_path
+		else:
+			var inheritance = get_type_inheritance(type)
+			if inheritance:
+				return inheritance.front()
 
 	return type
 
@@ -517,10 +525,12 @@ static func get_type_inheritance(
 		# we're dealing with a script
 		# build inheritance stack base->end
 		type = type if type is Script else load(type)
-		type_arr.push_front(type.resource_path)
+		if type.resource_path:
+			type_arr.push_front(type.resource_path)
 		var base_script: Script = type.get_base_script()
 		while base_script:
-			type_arr.push_front(base_script.resource_path)
+			if base_script.resource_path:
+				type_arr.push_front(base_script.resource_path)
 			base_script = base_script.get_base_script()
 		base = type.get_instance_base_type()
 
