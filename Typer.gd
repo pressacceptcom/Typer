@@ -617,11 +617,13 @@ static func types_compatible(
 	if not type1_str.begins_with('res://') or \
 			not type2_str.begins_with('res://'):
 		# at least one type is a built-in class or primitive
-		var type_str: String = normalize_type_to_str(type1_str)
-		type1_str = type1_str if type_str == STR_UNKNOWN else type_str
+		if not type1_str.begins_with('res://'):
+			var type_str: String = normalize_type_to_str(type1_str)
+			type1_str = type1_str if type_str == STR_UNKNOWN else type_str
 
-		type_str = normalize_type_to_str(type2_str)
-		type2_str = type2_str if type_str == STR_UNKNOWN else type_str
+		if not type2_str.begins_with('res://'):
+			var type_str: String = normalize_type_to_str(type2_str)
+			type2_str = type2_str if type_str == STR_UNKNOWN else type_str
 
 		if not type1_str in ARR_TYPES and not type2_str in ARR_TYPES:
 			# normalize to built-in class

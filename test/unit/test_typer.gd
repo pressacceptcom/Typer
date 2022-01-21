@@ -226,7 +226,7 @@ func test_is_indexable() -> void:
 			{ TestUtilities.ASSERTION: TestUtilities.FALSE },
 		[ 'res://addons/PressAccept/Typer/test/unit/Indexable.gd' ]:
 			{ TestUtilities.ASSERTION: TestUtilities.TRUE },
-		[ 'res://addons/PressAccept/Typer/test/unit/Nonindexable.gd' ]:
+		[ Vector2(0,0) ]:
 			{ TestUtilities.ASSERTION: TestUtilities.FALSE }
 	}
 
